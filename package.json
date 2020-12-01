@@ -34,6 +34,7 @@
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "fontsource-roboto": "^3.0.3",
+    "formidable": "^1.2.2",
     "helmet": "^4.2.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",

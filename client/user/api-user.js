@@ -48,10 +48,10 @@ const update = async (params, credentials, user) => {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + credentials.t
             },
-            body: JSON.stringify(user)
+            body: user
+            // body: JSON.stringify(user)
         })
         console.log("response: ",response);
         return await response.json()

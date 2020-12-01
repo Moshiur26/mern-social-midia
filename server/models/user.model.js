@@ -7,12 +7,20 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         required: 'Name is required'
     },
+    photo: {
+        data: Buffer,
+        contentType: String
+    },
     email: {
         type: String,
         trim: true,
         unique: 'Email already exists',
         match: [/.+\@.+\..+/, 'Please fill a valid email address'],
         required: 'Email is required'
+    },
+    about: {
+        type: String,
+        trim: true
     },
     created: {
         type: Date,

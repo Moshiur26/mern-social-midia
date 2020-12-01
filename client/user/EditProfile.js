@@ -1,6 +1,8 @@
 import { Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Icon, TextField, Typography } from '@material-ui/core'
+import FileUpload from '@material-ui/icons/AddPhotoAlternate'
+
 import { makeStyles } from '@material-ui/core/styles';
-import { Edit, Person } from '@material-ui/icons';
+import { AddPhotoAlternate, Edit, Person } from '@material-ui/icons';
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -30,6 +32,17 @@ const useStyles = makeStyles(theme => ({
     submit: {
       margin: 'auto',
       marginBottom: theme.spacing(2)
+    },
+    bigAvatar: {
+      width: 60,
+      height: 60,
+      margin: 'auto'
+    },
+    input: {
+      display: 'none'
+    },
+    filename:{
+      marginLeft:'10px'
     }
   }))
 
@@ -39,6 +52,8 @@ export default function EditProfile({ match }) {
     const [values, setValues] = useState({
         userId: '',
         name: '',
+        photo: '',
+        about: '',
         password: '',
         email: '',
         open: false,
@@ -64,7 +79,7 @@ export default function EditProfile({ match }) {
                 // console.log("set redirect");
                 // console.log("error: ",data.error);
             } else {
-                setValues({ ...values, name: data.name, email: data.email })
+                setValues({ ...values, name: data.name, about: data.about, email: data.email })
                 // console.log(">>>>>:-> user data: ", data);
             }
         })
@@ -75,31 +90,41 @@ export default function EditProfile({ match }) {
     }, [match.params.userId]);
     
     const handleChange = name => event => {
-        setValues({ ...values, [name]: event.target.value })
+        // setValues({ ...values, [name]: event.target.value })
+        const value = name === 'photo' ? event.target.files[0] : event.target.value
+        setValues({ ...values, [name]: value})
     }
 
     const clickSubmit = () => {
-        if (!jwt){console.log("jwt is absent")}
-        else{console.log("jwt is present");}
+        // if (!jwt){console.log("jwt is absent")}
+        // else{console.log("jwt is present");}
         // console.log(">>>jwt1: ",jwt);
 
-        const user = {
-            name: values.name || undefined,
-            email: values.email || undefined,
-            password: values.password || undefined
-        }
+        let userData = new FormData()
+        values.name && userData.append('name', values.name)
+        values.email && userData.append('email', values.email)
+        values.password && userData.append('password', values.password)
+        values.about && userData.append('about', values.about)
+        values.photo && userData.append('photo', values.photo)
+        
+        // const user = {
+        //     name: values.name || undefined,
+        //     about: values.about || undefined,
+        //     email: values.email || undefined,
+        //     password: values.password || undefined
+        // }
         // console.log(">>>jwt2: ",jwt);
         update({
             userId: match.params.userId
-        }, {t: jwt.token}, user).then((data) => {
+        }, {t: jwt.token}, userData).then((data) => {
             // console.log(">>>>>:2-> user data:2");
             if (data && data.error) {
                 setValues({ ...values, error: data.error })
                 // console.log("set redirect");
-                // console.log("error: ",data.error);
+                console.log("error: ",data.error);
             } else {
-                setValues({ ...values, userId: data._id, redirectToProfile: true })
-                // console.log(">>>>>:-> user data: ", data);
+                setValues({ ...values, redirectToProfile: true })
+                console.log(">>>>>:-> user data: ");
             }
         })
     }
@@ -114,11 +139,24 @@ export default function EditProfile({ match }) {
     return (
         <div>
             <Card className={classes.card}>
-                <h1>Edit Profile</h1>
+                <Typography variant="h6" className={classes.title}>
+                    Edit Profile
+                </Typography>
+                <input accept="image/*" type="file" onChange={handleChange('photo')} style={{display: 'none'}} id="icon-button-file"/>
+                <label htmlFor="icon-button-file">
+                    <Button variant="contained" color="default" component="span">
+                        Upload <AddPhotoAlternate/>
+                    </Button>
+                </label> <span className={classes.filename}>{values.photo? values.photo.name : ''}</span>
                 <CardContent>
                     <TextField id="name" label="Name"
                         className={classes.textField}
                         value={values.name} onChange={handleChange('name')}
+                        margin="normal"
+                    />
+                    <TextField id="about" label="About"
+                        className={classes.textField}
+                        value={values.about} onChange={handleChange('about')}
                         margin="normal"
                     />
                     <TextField id="email" label="Email"
@@ -147,19 +185,6 @@ export default function EditProfile({ match }) {
                     <Button color="primary" variant="contained" onClick={clickSubmit} className={classes.submit}>Submit</Button>
                 </CardActions>
             </Card>
-            {/* <Dialog open={values.open} disableBackdropClick={true}>
-                <DialogTitle>New Account</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        New Account Successfully Created.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Link to="/signin">
-                        <Button color="primary" autoFocus="autoFocus" variant="contained">Sign in</Button>
-                    </Link>
-                </DialogActions>
-            </Dialog> */}
         </div>
     )    
 };
