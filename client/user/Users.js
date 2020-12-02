@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
 export default function Users() {
     const classes = useStyles()
     const [users, setUsers] = useState([])
+    
     useEffect(() => {
         const abortController = new AbortController()
         const signal = abortController.signal
@@ -29,7 +30,6 @@ export default function Users() {
                 console.log(data.error);
             } else {
                 setUsers(data)
-                console.log(">>>>: -> ",data);
             }
         })
         return function cleanup() {

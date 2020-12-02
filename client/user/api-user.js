@@ -1,3 +1,4 @@
+
 const create = async (user) => {
     try{
         let response = await fetch('/api/users/', {
@@ -30,6 +31,7 @@ const read = async (params, credentials, signal) => {
     try {
         let response = await fetch('/api/users/' + params.userId, {
             method: 'GET',
+            signal: signal,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -61,7 +63,6 @@ const update = async (params, credentials, user) => {
 }
 
 const remove = async (params, credentials) => {
-    // console.log(">>>>credentials:>>:-> ",credentials);
     try {
         let response = await fetch('/api/users/' + params.userId, {
             method: 'POST',
@@ -71,12 +72,65 @@ const remove = async (params, credentials) => {
                 'Authorization': 'Bearer ' + credentials.t
             },
         })
-        // console.log("Remove Response: ", response);
         return await response.json()
     } catch (err) {
         console.log(err);
     }
 }
 
-export { create, list, read, update, remove }
+const follow = async (params, credentials, followId) => {
+    try {
+        let response = await fetch('/api/users/follow/', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'Application/json',
+                'Content-Type': 'Application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            },
+            body: JSON.stringify({userId: params.userId, followId: followId})
+        })
+        return await response.json()
+    } catch(err) {
+        console.log(err);
+    }
+}
 
+const unfollow = async (params, credentials, unfollowId) => {
+    try {
+        let response = await fetch('/api/users/unfollow/', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'Application/json',
+                'Content-Type': 'Application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            },
+            body: JSON.stringify({userId: params.userId, unfollowId: unfollowId})
+        })
+        return await response.json()
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const findPeople = async (params, credentials, signal) => {
+    console.log("params.userId->",params.userId);
+    console.log("credentials.t->",credentials.t);
+    try {
+        let response = await fetch('/api/users/findpeople/' + params.userId, {
+            method: 'GET',
+            signal: signal,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            }
+        })
+        console.log("Response: ->",response);
+        return response.json()
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+
+export { create, list, read, update, remove, follow, unfollow, findPeople }

@@ -66,21 +66,14 @@ export default function EditProfile({ match }) {
     useEffect(() => {
         const abortController = new AbortController()
         const signal = abortController.signal
-        // console.log(">>>>>:1-> user data: ");
-        // const jwt = auth.isAuthenticated()
         
-        // console.log(">>>>JWT: ",jwt);
         read({
             userId: match.params.userId
         }, {t: jwt.token}, signal).then((data) => {
-            // console.log(">>>>>:2-> user data:2");
             if (data && data.error) {
                 setValues({ ...values, redirectToSignin: true, error: data.error })
-                // console.log("set redirect");
-                // console.log("error: ",data.error);
             } else {
                 setValues({ ...values, name: data.name, about: data.about, email: data.email })
-                // console.log(">>>>>:-> user data: ", data);
             }
         })
         
@@ -90,16 +83,11 @@ export default function EditProfile({ match }) {
     }, [match.params.userId]);
     
     const handleChange = name => event => {
-        // setValues({ ...values, [name]: event.target.value })
         const value = name === 'photo' ? event.target.files[0] : event.target.value
         setValues({ ...values, [name]: value})
     }
 
     const clickSubmit = () => {
-        // if (!jwt){console.log("jwt is absent")}
-        // else{console.log("jwt is present");}
-        // console.log(">>>jwt1: ",jwt);
-
         let userData = new FormData()
         values.name && userData.append('name', values.name)
         values.email && userData.append('email', values.email)
@@ -107,24 +95,14 @@ export default function EditProfile({ match }) {
         values.about && userData.append('about', values.about)
         values.photo && userData.append('photo', values.photo)
         
-        // const user = {
-        //     name: values.name || undefined,
-        //     about: values.about || undefined,
-        //     email: values.email || undefined,
-        //     password: values.password || undefined
-        // }
-        // console.log(">>>jwt2: ",jwt);
         update({
             userId: match.params.userId
         }, {t: jwt.token}, userData).then((data) => {
-            // console.log(">>>>>:2-> user data:2");
             if (data && data.error) {
                 setValues({ ...values, error: data.error })
-                // console.log("set redirect");
                 console.log("error: ",data.error);
             } else {
                 setValues({ ...values, redirectToProfile: true })
-                console.log(">>>>>:-> user data: ");
             }
         })
     }

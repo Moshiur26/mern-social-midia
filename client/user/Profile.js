@@ -1,6 +1,7 @@
 import { Avatar, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Edit, Person } from '@material-ui/icons';
+import jwt from 'express-jwt';
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,9 @@ import auth from '../auth/auth-helper';
 import { read } from './api-user';
 
 import DeleteUser from './DeleteUser';
+import FindPeople from './FindPeople';
+import FollowGrid from './FollowGrid';
+import FollowProfileButton from './FollowProfileButton';
 
 const useStyles = makeStyles(theme => ({
     root: theme.mixins.gutters({
@@ -29,27 +33,25 @@ const useStyles = makeStyles(theme => ({
 
 export default function Profile({ match }) {
     const classes = useStyles()
-    const [user, setUser] = useState({});
-    const [redirectToSignin, setRedirectToSignin] = useState(false);
-
+    const [values, setValues] = useState({
+        user: { following: [], followers: [] },
+        redirectToSignin: false,
+        following: false
+    });
+    const jwt = auth.isAuthenticated()
+   
     useEffect(() => {
         const abortController = new AbortController()
         const signal = abortController.signal
-        // console.log(">>>>>:1-> user data: ");
-        const jwt = auth.isAuthenticated()
         
-        // console.log(">>>>JWT: ",jwt);
         read({
             userId: match.params.userId
         }, {t: jwt.token}, signal).then((data) => {
-            // console.log(">>>>>:2-> user data:2");
             if (data && data.error) {
-                setRedirectToSignin(true)
-                // console.log("set redirect");
-                // console.log("error: ",data.error);
+                setValues({ ...values, redirectToSignin: true })
             } else {
-                setUser(data)
-                // console.log(">>>>>:-> user data: ", data);
+                let following = checkFollow(data)
+                setValues({ ...values, user: data, following: following })
             }
         })
         
@@ -58,11 +60,30 @@ export default function Profile({ match }) {
         }
     }, [match.params.userId]);
     
-    const photoUrl = user._id
-              ? `/api/users/photo/${user._id}?${new Date().getTime()}`
+    const checkFollow = (user) => {
+        const match = user.followers.some((follower) => {
+            return follower._id == jwt.user._id
+            // return follower._id == auth.isAuthenticated().user._id
+        })
+        return match
+    }
+    const clickFollowButton = (callApi) => {
+        callApi({
+            userId: jwt.user._id
+        }, { t: jwt.token }, values.user._id).then((data) => {
+            if (data.error) {
+                setValues({...values, error: data.error})
+            } else {
+                setValues({...values, user: data, following: !values.following})
+            }
+        })
+    }
+
+    const photoUrl = values.user._id
+              ? `/api/users/photo/${values.user._id}?${new Date().getTime()}`
               : '/api/users/defaultphoto'
 
-    if (redirectToSignin) {
+    if (values.redirectToSignin) {
         return (<Redirect to='/signin'/>)
     }
 
@@ -78,27 +99,47 @@ export default function Profile({ match }) {
                                 <Person/>
                             </Avatar> */}
                         </ListItemAvatar>
-                        <ListItemText primary={user.name} secondary={user.email}/>
-                        { auth.isAuthenticated().user && auth.isAuthenticated().user._id == user._id && (
+                        <ListItemText primary={values.user.name} secondary={values.user.email}/>
+                        { auth.isAuthenticated().user && auth.isAuthenticated().user._id == values.user._id 
+                            ? (
                             <ListItemSecondaryAction>
-                                <Link to={"/user/edit/" + user._id}>
+                                <Link to={"/user/edit/" + values.user._id}>
                                     <IconButton arial-label="Edit" color="primary">
                                         <Edit/>
                                     </IconButton>
                                 </Link>
-                                <DeleteUser userId={user._id}/>
+                                <DeleteUser userId={values.user._id}/>
                             </ListItemSecondaryAction>
-                            ) 
+                            )
+                            : (
+                                <ListItemSecondaryAction>
+                                    <FollowProfileButton following={values.following} onButtonClick={clickFollowButton}/>
+                                </ListItemSecondaryAction>
+                                )
+
                         }
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary={user.about}/>
+                        <ListItemText primary={values.user.about}/>
                     </ListItem>
                     <Divider/>
                     <ListItem>
-                        <ListItemText primary={"Joined: " + (new Date(user.created)).toDateString()}/>
+                        <ListItemText primary={"Joined: " + (new Date(values.user.created)).toDateString()}/>
                     </ListItem>
                 </List>
+                <Divider/>
+                <Typography variant="h6" className={classes.title}>
+                        Followers
+                </Typography>
+                <FollowGrid people={values.user.followers}/>
+                <Divider/>
+                <Typography variant="h6" className={classes.title}>
+                        Following
+                </Typography>
+                <FollowGrid people={values.user.following}/>
+                <Divider/>
+                    { jwt.user && jwt.user._id == values.user._id && <FindPeople/> }
+                {/* <ProfileTabs user={values.user} posts={posts} removePostUpdate={removePost}/> */}
             </Paper>
         </div>
     )
