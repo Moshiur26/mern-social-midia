@@ -82,5 +82,25 @@ const postByID = async (req, res, next, id) => {
         })
     }
 }
+const isPoster = (req, res, next) => {
+    const isPoster = req.auth && req.post && req.auth._id === req.post.postedBy._id
+    if (!isPoster) {
+        return res.status('403').json({
+            error: "User is not authorized"
+        })
+    }
+    next()
+}
+const remove = async (req, res) => {
+    try {       
+        let post = req.post
+        let deletePost = await post.remove()
+        res.json(deletePost)
+        } catch (err) {
+            return res.status('400').json({
+                error: errorHandler.getErrorMessage(err)
+            })
+        }
+}
 
-export default { listNewsFeed, listByUser, create, photo, postByID }
+export default { listNewsFeed, listByUser, create, photo, postByID, isPoster, remove }

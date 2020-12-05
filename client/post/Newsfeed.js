@@ -60,8 +60,8 @@ export default function Newsfeed() {
     }
     return (<div>
         {/* <Card> */}
-            <Typography type="title" className={classes.title}>##Newsfeed##</Typography>
-            <Divider/>
+            {/* <Typography type="title" className={classes.title}>##Newsfeed##</Typography>
+            <Divider/> */}
             <NewPost addUpdate={addPost}/>
             <Divider/>
             <PostList removeUpdate={removePost} posts={posts}/>

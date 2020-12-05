@@ -24,7 +24,7 @@ const listNewsFeed = async (params, credentials, signal) => {
                 'Authorization': 'Bearer ' + credentials.t
             }
         })
-        console.log("response: ", await response);
+        console.log("listNewsFeed response: ", await response);
         return await response.json()
     } catch(err) {
         console.log("error: ", err);
@@ -65,4 +65,19 @@ const listByUser = async (params, credentials) => {
         console.log(err);
     }
 }
-export { listNewsFeed, listByUser, create }
+const remove = async (params, credentials) => {
+    try {
+        let response = await fetch('/api/posts/' + params.postId, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            },
+        })
+        return await response.json()
+    } catch (err) {
+        console.log(err);
+    }
+}
+export { listNewsFeed, listByUser, create, remove }
