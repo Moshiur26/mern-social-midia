@@ -1,12 +1,13 @@
 import { Avatar, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Edit, Person } from '@material-ui/icons';
+import { Edit, Person, SettingsInputCompositeSharp } from '@material-ui/icons';
 import jwt from 'express-jwt';
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import auth from '../auth/auth-helper';
 import { read } from './api-user';
+import { listByUser } from '../post/api-post';
 
 import DeleteUser from './DeleteUser';
 import FindPeople from './FindPeople';
@@ -38,6 +39,7 @@ export default function Profile({ match }) {
         redirectToSignin: false,
         following: false
     });
+    const [posts, setPosts] = useState([]);
     const jwt = auth.isAuthenticated()
    
     useEffect(() => {
@@ -77,6 +79,16 @@ export default function Profile({ match }) {
                 setValues({...values, user: data, following: !values.following})
             }
         })
+    }
+    const loadPosts = (user) => {
+        listByUser({ userId: user}, { t: jwt.token })
+            .then((data) => {
+                if (data && data.error) {
+                    console.log(data.error);
+                } else {
+                    setPosts(data)
+                }
+            })
     }
 
     const photoUrl = values.user._id
@@ -127,16 +139,27 @@ export default function Profile({ match }) {
                         <ListItemText primary={"Joined: " + (new Date(values.user.created)).toDateString()}/>
                     </ListItem>
                 </List>
-                <Divider/>
-                <Typography variant="h6" className={classes.title}>
-                        Followers
-                </Typography>
-                <FollowGrid people={values.user.followers}/>
-                <Divider/>
-                <Typography variant="h6" className={classes.title}>
-                        Following
-                </Typography>
-                <FollowGrid people={values.user.following}/>
+                
+                {Object.keys(values.user.followers).length !== 0
+                && (<div>
+                    <Divider/>
+                    <Typography variant="h6" className={classes.title}>
+                            Followers
+                    </Typography>
+                    <FollowGrid people={values.user.followers}/>
+                </div>)
+                }
+                
+                {Object.keys(values.user.following).length !== 0
+                && (<div>
+                    <Divider/>
+                    <Typography variant="h6" className={classes.title}>
+                            Following
+                    </Typography>
+                    <FollowGrid people={values.user.following}/>
+                </div>)
+                }
+                    
                 <Divider/>
                     { jwt.user && jwt.user._id == values.user._id && <FindPeople/> }
                 {/* <ProfileTabs user={values.user} posts={posts} removePostUpdate={removePost}/> */}

@@ -55,7 +55,7 @@ const update = async (params, credentials, user) => {
             body: user
             // body: JSON.stringify(user)
         })
-        console.log("response: ",response);
+        // console.log("response: ",response);
         return await response.json()
     } catch (err) {
         console.log(err);
@@ -113,8 +113,8 @@ const unfollow = async (params, credentials, unfollowId) => {
 }
 
 const findPeople = async (params, credentials, signal) => {
-    console.log("params.userId->",params.userId);
-    console.log("credentials.t->",credentials.t);
+    // console.log("params.userId->",params.userId);
+    // console.log("credentials.t->",credentials.t);
     try {
         let response = await fetch('/api/users/findpeople/' + params.userId, {
             method: 'GET',
@@ -125,7 +125,7 @@ const findPeople = async (params, credentials, signal) => {
                 'Authorization': 'Bearer ' + credentials.t
             }
         })
-        console.log("Response: ->",response);
+        // console.log("Response: ->",response);
         return response.json()
     } catch (err) {
         console.log(err);

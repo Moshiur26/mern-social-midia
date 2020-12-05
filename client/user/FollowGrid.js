@@ -30,7 +30,7 @@ export default function FollowGrid(props) {
     const classes = useStyles()
     return (
         <div className={classes.root}>
-            <GridList cellHeight={100} className={classes.gridList} cols={4}>
+            <GridList cellHeight={60} className={classes.gridList} cols={4}>
                 {props.people.map((person, i) => {
                     return <GridListTile style={{'height': 120}} key={i}>
                         <Link to={"/user/" + person._id}>
