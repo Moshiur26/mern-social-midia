@@ -75,7 +75,7 @@ export default function Post(props) {
                 <Avatar src={'/api/users/photo/' + props.post.postedBy._id}/>
               }
               action={props.post.postedBy._id === auth.isAuthenticated().user._id && 
-                  <IconButton onclick={deletePost}>
+                  <IconButton onClick={deletePost}>
                     {/* <DeleteIcon/> */}
                     <Delete/>
                   </IconButton>
