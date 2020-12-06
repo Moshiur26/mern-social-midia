@@ -31,7 +31,6 @@ const create = (req, res, next) => {
 const listNewsFeed = async (req, res) => {
     let following = req.profile.following
     following.push(req.profile._id)
-    console.log("listNewsFeed in post controller : 1");
     try {
         let posts = await Post.find({ postedBy: { $in: req.profile.following } })
             .populate('comments.postedBy', '_id name')
@@ -40,7 +39,7 @@ const listNewsFeed = async (req, res) => {
             .exec()
         res.json(posts)
     } catch(err) {
-        console.log("listNewsFeed Error: ", dbErrorHandler.getErrorMessage(err))
+        // console.log("listNewsFeed Error: ", dbErrorHandler.getErrorMessage(err))
         return res.status(400).json({
             error: dbErrorHandler.getErrorMessage(err)
         })
@@ -123,5 +122,34 @@ const unlike = async (req, res) => {
         })
     }
 }
+const comment = async (req, res) => {
+    let comment = req.body.comment
+    comment.postedBy = req.body.userId
+    try {
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$push: {comments: comment}}, {new: true})
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec()
+        res.json(result)
+    } catch(err) {
+        return res.status(400).json({
+            error: errorHandler.getErrorMessage(err)
+        })
+    }
+}
+const uncomment = async (req, res) => {
+    let comment = req.body.comment
+    try {
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$pull: {comments: {_id: comment._id}}}, {new: true})
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec()
+        res.json(result)
+    } catch(err) {
+        return res.status(400).json({
+            error: errorHandler.getErrorMessage(err)
+        })
+    }
+}
 
-export default { listNewsFeed, listByUser, create, photo, postByID, isPoster, remove, like, unlike }
+export default { listNewsFeed, listByUser, create, photo, postByID, isPoster, remove, like, unlike, comment, uncomment }

@@ -1,4 +1,4 @@
-import { Avatar, Card, CardActions, CardContent, CardHeader, IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Avatar, Card, CardActions, CardContent, CardHeader, Divider, IconButton, makeStyles, Typography } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import auth from '../auth/auth-helper';
@@ -7,6 +7,7 @@ import { Comment, Delete, Favorite, FavoriteBorder } from '@material-ui/icons';
 import ThumbUpAltOutlinedIcon from '@material-ui/icons/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
 import { create, like, remove, unlike } from './api-post';
+import Comments from './Comments';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -73,6 +74,9 @@ export default function Post(props) {
           }
         })
     }
+    const updateComments = (comments) => {
+      setValues({...values, comments: comments})
+    }
 
     return (<div>
         <Card className={classes.card}>
@@ -114,6 +118,8 @@ export default function Post(props) {
                   </IconButton> 
                   <span>{values.comments.length}</span>
             </CardActions>
+            {/* <Divider/> */}
+            <Comments postId={props.post._id} comments={values.comments} updateComments={updateComments}/>
         </Card>
     </div>)
 };

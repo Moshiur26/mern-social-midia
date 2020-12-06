@@ -24,7 +24,7 @@ const listNewsFeed = async (params, credentials, signal) => {
                 'Authorization': 'Bearer ' + credentials.t
             }
         })
-        console.log("listNewsFeed response: ", await response);
+        // console.log("listNewsFeed response: ", await response);
         return await response.json()
     } catch(err) {
         console.log("error: ", err);
@@ -99,4 +99,26 @@ const unlike = async (params, credentials, postId) => {
         console.log(err);
     }
 }
-export { listNewsFeed, listByUser, create, remove, like, unlike }
+const comment = async (params, credentials, postId, comment) => {
+    let response = await fetch('/api/posts/comment/', {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + credentials.t
+        },
+        body: JSON.stringify({userId: params.userId, postId: postId, comment: comment})
+    })
+}
+const uncomment = async (params, credentials, postId, comment) => {
+    let response = await fetch('/api/posts/uncomment/', {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + credentials.t
+        },
+        body: JSON.stringify({userId: params.userId, postId: postId, comment: comment})
+    })
+}
+export { listNewsFeed, listByUser, create, remove, like, unlike, comment, uncomment }
