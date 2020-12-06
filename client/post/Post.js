@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import { Comment, Delete, Favorite, FavoriteBorder } from '@material-ui/icons';
 import ThumbUpAltOutlinedIcon from '@material-ui/icons/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
-import { create, remove } from './api-post';
+import { create, like, remove, unlike } from './api-post';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -53,9 +53,15 @@ export default function Post(props) {
     });
 
     const clickLike = () => {
-      setValues({ ...values, like: true, likes: values.likes + 1 })
-      console.log(props.post);
-      // console.log("likes: ",values.likes);
+      let callApi = values.like ? unlike : like
+      callApi({ userId: jwt.user._id }, { t: jwt.token }, props.post._id)
+        .then( (data) => {
+          if (data && data.error) {
+            console.log("Error : ", data.error);
+          } else {
+            setValues({ ...values, like: !values.like, likes: data.likes.length })
+          }
+        })
     }
     const deletePost = () => {
       remove({ postId: props.post._id }, { t: jwt.token })
@@ -101,7 +107,8 @@ export default function Post(props) {
                 : <IconButton onClick={clickLike} className={classes.button} aria-label="Unlike" color="primary">
                     {/* <FavoriteBorder/> */}
                   <ThumbUpAltOutlinedIcon/>
-                </IconButton>} <span>{values.likes}</span>
+                </IconButton>} 
+                  <span>{values.likes}</span>
                   <IconButton className={classes.button} arial-label="Comment" color="primary">
                     <Comment/>
                   </IconButton> 

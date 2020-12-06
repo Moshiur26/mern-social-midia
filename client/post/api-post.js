@@ -55,7 +55,7 @@ const remove = async (params, credentials) => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + credentials.t
-            },
+            }
         })
         console.log("api-post remove response", await response);
         return await response.json()
@@ -63,4 +63,40 @@ const remove = async (params, credentials) => {
         console.log(err);
     }
 }
-export { listNewsFeed, listByUser, create, remove }
+const like = async (params, credentials, postId) => {
+    try {
+        // console.log("api-post remove 1");
+        let response = await fetch('/api/posts/like/', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            },
+            body: JSON.stringify({ userId: params.userId, postId: postId })
+        })
+        // console.log("api-post remove response", await response);
+        return await response.json()
+    } catch (err) {
+        console.log(err);
+    }
+}
+const unlike = async (params, credentials, postId) => {
+    try {
+        // console.log("api-post remove 1");
+        let response = await fetch('/api/posts/unlike/', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + credentials.t
+            },
+            body: JSON.stringify({ userId: params.userId, postId: postId })
+        })
+        // console.log("api-post remove response", await response);
+        return await response.json()
+    } catch (err) {
+        console.log(err);
+    }
+}
+export { listNewsFeed, listByUser, create, remove, like, unlike }
